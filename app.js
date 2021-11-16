@@ -1,7 +1,7 @@
 class DrawPicture{
     init(){
         this.scale = 250;       // Отвечает за масштабирование множества
-        this.precision = 50;    // Отвечает за точность(четкость) отрисовки
+        this.percision = 50;    // Отвечает за точность(четкость) отрисовки
         this.panX = 2;          // Смещение по Х
         this.panY = 1.5;        // Смещение по Y
         this.scrolAngle = 0;
@@ -15,6 +15,7 @@ class DrawPicture{
         //this.drawNoise();
         this.mandelbrot();
         this.drawCanvasArray();
+        this.updateControlData();
 
         window.addEventListener('mousedown', (e) => {
             this.isMouseDown = true;
@@ -31,18 +32,21 @@ class DrawPicture{
 
                 this.panX += (e.x - this.oldX) / this.scale;
                 this.panY += (e.y - this.oldY) / this.scale;
-                this.mandelbrot();
-                //shiftedMatrix(this.canvasArray, e.x - this.oldX, e.y - this.oldY);
-                this.drawCanvasArray();
-                //console.log(`x:${e.x} y:${e.y}`);
+                this.complexDraw();
             }
         })
         window.addEventListener('wheel', (e) => {
             //console.log(`x:${e.x} y:${e.y}; delata:${e.wheelDelta}`)
             this.scrolAngle += e.wheelDelta;
             this.scale += this.scrolAngle / 100;
-            this.mandelbrot();
-            this.drawCanvasArray();
+            this.percision += this.scale * this.scrolAngle / 100000;
+            
+            if(this.percision > 300)
+                this.percision = 300;
+            if(this.percision < 30)
+                this.percision = 30;
+            
+            this.complexDraw();
         })
     }
     createCanvas(){
@@ -105,7 +109,7 @@ class DrawPicture{
         let imgComp = y;
         
         let i = 0;
-        for(; i < this.precision; i++) {
+        for(; i < this.percision; i++) {
             // Calculate the realComp and imaginary components of the result
             // separately
             let tempRealComp = realComp * realComp
@@ -120,9 +124,30 @@ class DrawPicture{
         }
     
         if (realComp * imgComp < 5)
-            return i / this.precision * 100; // In the Mandelbrot set
+            return i / this.percision * 100; // In the Mandelbrot set
     
         return 0; // Not in the set
+    }
+    updateControlData(){
+        let scaleElement = document.getElementById("scaleControl");
+        scaleElement.value = this.scale;
+
+        let percisionElement = document.getElementById("percisionControl");
+        percisionElement.value = this.percision;
+
+        let panXElement = document.getElementById("panXControl");
+        panXElement.value = this.panX;
+
+        let panYElement = document.getElementById("panYControl");
+        panYElement.value = this.panY;
+
+        let scrolAngleElement = document.getElementById("scrolAngleControl");
+        scrolAngleElement.value = this.scrolAngle;
+    }
+    complexDraw(){
+        this.mandelbrot();
+        this.drawCanvasArray();
+        this.updateControlData();
     }
 }
 
