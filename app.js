@@ -277,5 +277,3 @@ function drawOR(ctx, offsetX, offsetY){
         schem: {id: 0, keyName: 'box1', links:[]}
     }
 });*/
-
-
