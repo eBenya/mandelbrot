@@ -31,17 +31,18 @@ class DrawPicture{
 
                 this.panX += (e.x - this.oldX) / this.scale;
                 this.panY += (e.y - this.oldY) / this.scale;
-                //this.mandelbrot();
-                shiftedMatrix(this.canvasArray, e.x - this.oldX, e.y - this.oldY);
+                this.mandelbrot();
+                //shiftedMatrix(this.canvasArray, e.x - this.oldX, e.y - this.oldY);
                 this.drawCanvasArray();
                 //console.log(`x:${e.x} y:${e.y}`);
             }
         })
         window.addEventListener('wheel', (e) => {
-            console.log(`x:${e.x} y:${e.y}; delata:${e.wheelDelta}`)
+            //console.log(`x:${e.x} y:${e.y}; delata:${e.wheelDelta}`)
             this.scrolAngle += e.wheelDelta;
             this.scale += this.scrolAngle / 100;
             this.mandelbrot();
+            this.drawCanvasArray();
         })
     }
     createCanvas(){
