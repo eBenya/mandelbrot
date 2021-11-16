@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "pwa-chrome",
+            "name": "file:///C:/Users/My/Desktop/testProj/index.html",
+            "request": "launch",
+            "url": "file:///C:/Users/My/Desktop/testProj/index.html"
+        }
+    ]
+}
