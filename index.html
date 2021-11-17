@@ -6,11 +6,15 @@
 	</head>
 	<body>    
         <div id="controls">
-            <input id="scaleControl"/>
-            <input id="percisionControl"/>
-            <input id="panXControl"/>
-            <input id="panYControl"/>
-            <input id="scrolAngleControl"/>
+            <form id="editParams" name="editParams">
+                <legend style="color: brown;">Parameters for rendering:</legend>
+                <input id="scaleControl" name="scaleControl"/>
+                <input id="percisionControl" name="percisionControl"/>
+                <input id="panXControl" name="panXControl"/>
+                <input id="panYControl" name="panYControl"/>
+                <input id="scrolAngleControl" name="scrolAngleControl"/>
+                <button id="confChanges">Применить</button>
+            </form>
         </div>    
         <script src="app.js"></script>
     </body>
