@@ -48,10 +48,11 @@ class DrawPicture{
             
             this.complexDraw();
         })
-        let form = document.getElementById("editParams");
-        if(form != null){
-
-        }
+        let btn = document.getElementById("confChanges");
+        btn.onclick = (e)=>{
+            this.applyNewParams();
+            this.complexDraw();
+        };
     }
     createCanvas(){
         this.cnv = document.createElement(`canvas`);
@@ -132,6 +133,7 @@ class DrawPicture{
     
         return 0; // Not in the set
     }
+
     updateControlData(){
         let form = document.forms.editParams;
 
@@ -150,6 +152,26 @@ class DrawPicture{
         let scrolAngleElement = form.scrolAngleControl;
         scrolAngleElement.value = this.scrolAngle;
     }
+    applyNewParams(){
+        console.log("kekWParams");
+        let form = document.forms.editParams;
+
+        let scaleElement = form.scaleControl;
+        this.scale = scaleElement.value;
+
+        let percisionElement = form.percisionControl;
+        this.percision = percisionElement.value;
+
+        let panXElement = form.panXControl;
+        this.panX = panXElement.value;
+
+        let panYElement = form.panYControl;
+        this.panY = panYElement.value;
+
+        let scrolAngleElement = form.scrolAngleControl;
+        this.scrolAngle = scrolAngleElement.value;
+    }
+
     complexDraw(){
         this.mandelbrot();
         this.drawCanvasArray();
@@ -226,8 +248,8 @@ function shiftedMatrix(matrix, x, y){
     }
 }
 
-function onClickButtonHandler(func){
-    func(e);
+function onClickButtonHandler(){
+    console.log("kekPucW");
 }
 
 
