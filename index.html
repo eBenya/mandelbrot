@@ -4,17 +4,34 @@
         <meta charset='utf-8' />
         <link rel="stylesheet" href="./style.css">
 	</head>
-	<body>    
+	<body>
+        <div id="outputs">
+            <span class="block">
+                scale:<span id="scale" class="output"></span>;
+            </span>
+            <span class="block"> 
+                percision:<span id="percision" class="output"></span>;
+            </span>
+            <span class="block">
+                panX:<span id="panX" class="output"></span>;
+            </span>
+            <span class="block">
+                panY:<span id="panY" class="output"></span>;
+            </span>
+            <span class="block">
+                angle:<span id="angle" class="output"></span>;
+            </span>
+        </div>    
         <div id="controls">
             <form id="editParams" name="editParams">
                 <legend style="color: brown;">Parameters for rendering:</legend>
-                <input id="scaleControl" name="scaleControl"/>
-                <input id="percisionControl" name="percisionControl"/>
-                <input id="panXControl" name="panXControl"/>
-                <input id="panYControl" name="panYControl"/>
-                <input id="scrolAngleControl" name="scrolAngleControl"/>
+                <input id="scaleControl" name="scaleControl" type="number"/>
+                <input id="percisionControl" name="percisionControl" type="number"/>
+                <input id="panXControl" name="panXControl" type="number"/>
+                <input id="panYControl" name="panYControl" type="number"/>
+                <input id="scrolAngleControl" name="scrolAngleControl" type="number"/>
                 <button type="button" id="confChanges" href="#">Apply</button>
             </form>
-        </div>    
+        </div>
         <script src="app.js"></script>
     </body>

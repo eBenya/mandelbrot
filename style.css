@@ -1,3 +1,6 @@
+html{
+    overflow: hidden;
+}
 body{
     margin: 0;
     width: 100vw;
@@ -5,7 +8,7 @@ body{
 }
 
 canvas{
-    position: absolute;
+    position: relative;
     top: 0;
     left: 0;
     display: block;
@@ -13,4 +16,13 @@ canvas{
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     z-index: -1;
+}
+
+div#output{
+    border: 1px solid orange;
+    text-align: right;
+    padding-right: 40px;
+}
+span.block{
+    margin-right: 5px;
 }

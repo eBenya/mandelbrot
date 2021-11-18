@@ -1,6 +1,6 @@
 class DrawPicture{
     init(){
-        this.scale = 250;       // Отвечает за масштабирование множества
+        this.scale = new Number(250);       // Отвечает за масштабирование множества
         this.percision = 50;    // Отвечает за точность(четкость) отрисовки
         this.panX = 2;          // Смещение по Х
         this.panY = 1.5;        // Смещение по Y
@@ -56,6 +56,7 @@ class DrawPicture{
     }
     createCanvas(){
         this.cnv = document.createElement(`canvas`);
+        //this.cnv = document.getElementsByTagName('canvas');
         this.cnv.style.background = 'rgba(255,255,255,0)'//randColor('rgba');
         this.ctx = this.cnv.getContext('2d');
 
@@ -135,41 +136,38 @@ class DrawPicture{
     }
 
     updateControlData(){
+        let outElements = document.getElementById("outputs").getElementsByClassName("output");
+        outElements.scale.textContent = this.scale;
+        outElements.percision.textContent = this.percision;
+        outElements.panX.textContent = this.panX;
+        outElements.panY.textContent = this.panY;
+        outElements.angle.textContent = this.scrolAngle;
+        
         let form = document.forms.editParams;
-
-        let scaleElement = form.scaleControl;
-        scaleElement.value = this.scale;
-
-        let percisionElement = form.percisionControl;
-        percisionElement.value = this.percision;
-
-        let panXElement = form.panXControl;
-        panXElement.value = this.panX;
-
-        let panYElement = form.panYControl;
-        panYElement.value = this.panY;
-
-        let scrolAngleElement = form.scrolAngleControl;
-        scrolAngleElement.value = this.scrolAngle;
+        form.scaleControl.value = this.scale;
+        form.percisionControl.value = this.percision;
+        form.panXControl.value = this.panX;
+        form.panYControl.value = this.panY;
+        form.scrolAngleControl.value = this.scrolAngle;
     }
     applyNewParams(){
         console.log("kekWParams");
         let form = document.forms.editParams;
 
         let scaleElement = form.scaleControl;
-        this.scale = scaleElement.value;
+        this.scale = Number(scaleElement.value);
 
         let percisionElement = form.percisionControl;
-        this.percision = percisionElement.value;
+        this.percision = Number(percisionElement.value);
 
         let panXElement = form.panXControl;
-        this.panX = panXElement.value;
+        this.panX = Number(panXElement.value);
 
         let panYElement = form.panYControl;
-        this.panY = panYElement.value;
+        this.panY = Number(panYElement.value);
 
         let scrolAngleElement = form.scrolAngleControl;
-        this.scrolAngle = scrolAngleElement.value;
+        this.scrolAngle = Number(scrolAngleElement.value);
     }
 
     complexDraw(){
