@@ -1,7 +1,8 @@
 class DrawPicture{
     init(){
+        const DEFAULT_SCALE = 250;
         this.scale = new Number(250);       // Отвечает за масштабирование множества
-        this.percision = 50;    // Отвечает за точность(четкость) отрисовки
+        this.percision = 100;    // Отвечает за точность(четкость) отрисовки
         this.panX = 2;          // Смещение по Х
         this.panY = 1.5;        // Смещение по Y
         this.scrolAngle = 0;
@@ -13,9 +14,7 @@ class DrawPicture{
         this.createCanvas();
         this.setCanvasSize();
         //this.drawNoise();
-        this.mandelbrot();
-        this.drawCanvasArray();
-        this.updateControlData();
+        this.redrawCanvas();
 
         window.addEventListener('mousedown', (e) => {
             this.isMouseDown = true;
@@ -32,26 +31,24 @@ class DrawPicture{
 
                 this.panX += (e.x - this.oldX) / this.scale;
                 this.panY += (e.y - this.oldY) / this.scale;
-                this.complexDraw();
+                this.redrawCanvas();
             }
         })
         window.addEventListener('wheel', (e) => {
             //console.log(`x:${e.x} y:${e.y}; delata:${e.wheelDelta}`)
             this.scrolAngle += e.wheelDelta;
-            this.scale += this.scrolAngle / 100;
-            this.percision += this.scale * this.scrolAngle / 100000;
+            if(e.wheelDelta > 0)
+                this.scale += this.scrolAngle / 100;
+            else
+                this.scale -= this.scrolAngle / 100;
+            //this.percision += this.scale * this.scrolAngle / 100000;
             
-            if(this.percision > 300)
-                this.percision = 300;
-            if(this.percision < 30)
-                this.percision = 30;
-            
-            this.complexDraw();
+            this.redrawCanvas();
         })
         let btn = document.getElementById("confChanges");
         btn.onclick = (e)=>{
             this.applyNewParams();
-            this.complexDraw();
+            this.redrawCanvas();
         };
     }
     createCanvas(){
@@ -66,6 +63,7 @@ class DrawPicture{
         this.w = this.cnv.width = innerWidth;
         this.h = this.cnv.height = innerHeight;
         this.canvasArray = createMatrix(this.w, this.h);
+        this.imgData = this.ctx.createImageData(this.w, this.h);
     }
     drawNoise(){
         for(let w = 0; w < this.w; w++){
@@ -86,38 +84,28 @@ class DrawPicture{
         this.ctx.putImageData(rect, 0, 0);
     }
     
-    mandelbrot(){        
+    mandelbrot(){    
+        this.testSet = new Set();    
         for(let x=0; x < this.cnv.width; x++) {
             for(let y=0; y < this.cnv.height; y++) {
                 let isBelongsToSet = 
                         this.checkIfBelongsToMandelbrotSet(x/this.scale - this.panX, 
                                                     y/this.scale - this.panY);
+                this.testSet.add(isBelongsToSet);
                 if(isBelongsToSet == 0) {
-                    //this.ctx.fillStyle = '#000';
-                    //this.ctx.fillRect(x,y, 1,1); // Draw a black pixel
-                    this.canvasArray[x][y] = '#000';
+                    this.setPointInImgData(this.imgData, x, y, {r:0, g:0, b:0, a:255});
                 } else {
-                    //this.ctx.fillStyle = `hsl(0, 100%, ${isBelongsToSet}%)`;
-                    //this.ctx.fillRect(x,y, 1,1); // Draw a colorful pixel
-                    this.canvasArray[x][y] = `hsl(0, 100%, ${isBelongsToSet}%)`;
-                }          
+                    this.setPointInImgData(this.imgData, x, y, {r:isBelongsToSet + 10, g:isBelongsToSet, b:isBelongsToSet, a:255});
+                }
             } 
         }
-    }
-    drawCanvasArray(){
-        for(let i = 0; i < this.canvasArray.length; i++)
-            for(let j = 0; j < this.canvasArray[i].length; j++){
-                printDot(this.ctx, i, j, this.canvasArray[i][j]);
-            }
-    }
+    }    
     checkIfBelongsToMandelbrotSet(x, y) {
         let realComp = x;
         let imgComp = y;
         
         let i = 0;
-        for(; i < this.percision; i++) {
-            // Calculate the realComp and imaginary components of the result
-            // separately
+        for(; i < this.percision; i++) {            
             let tempRealComp = realComp * realComp
                                     - imgComp * imgComp
                                     + x;
@@ -127,12 +115,24 @@ class DrawPicture{
     
             realComp = tempRealComp;
             imgComp = tempImgComp;
-        }
-    
-        if (realComp * imgComp < 5)
-            return i / this.percision * 100; // In the Mandelbrot set
+            if (realComp * imgComp > 5)
+            return i * 255 / this.percision; // In the Mandelbrot set
+        }       
     
         return 0; // Not in the set
+    }
+    drawCanvasArray(){
+        for(let i = 0; i < this.canvasArray.length; i++)
+            for(let j = 0; j < this.canvasArray[i].length; j++){
+                printDot(this.ctx, i, j, this.canvasArray[i][j]);
+            }
+    }
+    // Устанавливаем пиксель в позиции i, j 
+    setPointInImgData(imgData, i, j, rgba){
+        imgData.data[4 * (i + imgData.width * j) + 0] = rgba.r;
+        imgData.data[4 * (i + imgData.width * j) + 1] = rgba.g;
+        imgData.data[4 * (i + imgData.width * j) + 2] = rgba.b;
+        imgData.data[4 * (i + imgData.width * j) + 3] = rgba.a;
     }
 
     updateControlData(){
@@ -170,10 +170,17 @@ class DrawPicture{
         this.scrolAngle = Number(scrolAngleElement.value);
     }
 
-    complexDraw(){
+    // Перерисовка полотна
+    redrawCanvas(){
         this.mandelbrot();
-        this.drawCanvasArray();
+        this.testSet.forEach(element => {
+            console.log(element);
+        });
+        //this.drawCanvasArray();
+        this.ctx.putImageData(this.imgData, 0, 0);
         this.updateControlData();
+        this.ctx.strokeStyle = 'rgba(255,0,0,50)';
+        this.ctx.strokeRect(this.w * 0.5, this.h * 0.5, 50, 50);
     }
 }
 
@@ -200,7 +207,8 @@ class Layer {
 
 onload = () => {
     //new App(document.querySelector('body'));
-    new DrawPicture().init();
+    var picture = new DrawPicture();
+    picture.init();
 }
 
 function printDot(context, x, y, colorR = 0, colorG = 0, colorB = 0, colorA = 0){
@@ -248,6 +256,32 @@ function shiftedMatrix(matrix, x, y){
 
 function onClickButtonHandler(){
     console.log("kekPucW");
+}
+
+
+function hslToRgb(h, s, l){
+    var r, g, b;
+
+    if(s == 0){
+        r = g = b = l; // achromatic
+    }else{
+        var hue2rgb = function hue2rgb(p, q, t){
+            if(t < 0) t += 1;
+            if(t > 1) t -= 1;
+            if(t < 1/6) return p + (q - p) * 6 * t;
+            if(t < 1/2) return q;
+            if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+        }
+
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return {r:Math.round(r * 255), g:Math.round(g * 255), b:Math.round(b * 255)};
 }
 
 
