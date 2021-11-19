@@ -38,9 +38,9 @@ class DrawPicture{
             //console.log(`x:${e.x} y:${e.y}; delata:${e.wheelDelta}`)
             this.scrolAngle += e.wheelDelta;
             if(e.wheelDelta > 0)
-                this.scale += this.scrolAngle / 100;
+                this.scale += this.scale / 10;
             else
-                this.scale -= this.scrolAngle / 100;
+                this.scale -= this.scrolAngle / 10;
             //this.percision += this.scale * this.scrolAngle / 100000;
             
             this.redrawCanvas();
