@@ -129,10 +129,11 @@ class DrawPicture{
     }
     // Устанавливаем пиксель в позиции i, j 
     setPointInImgData(imgData, i, j, rgba){
-        imgData.data[4 * (i + imgData.width * j) + 0] = rgba.r;
-        imgData.data[4 * (i + imgData.width * j) + 1] = rgba.g;
-        imgData.data[4 * (i + imgData.width * j) + 2] = rgba.b;
-        imgData.data[4 * (i + imgData.width * j) + 3] = rgba.a;
+        let iter = 4 * (i + imgData.width * j)
+        imgData.data[iter + 0] = rgba.r;
+        imgData.data[iter + 1] = rgba.g;
+        imgData.data[iter + 2] = rgba.b;
+        imgData.data[iter + 3] = rgba.a;
     }
 
     updateControlData(){
