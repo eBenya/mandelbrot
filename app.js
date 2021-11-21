@@ -1,10 +1,9 @@
 class DrawPicture{
     init(){
-        const DEFAULT_SCALE = 250;
         this.scale = new Number(250);       // Отвечает за масштабирование множества
-        this.percision = 100;    // Отвечает за точность(четкость) отрисовки
-        this.panX = 2;          // Смещение по Х
-        this.panY = 1.5;        // Смещение по Y
+        this.percision = 100;     // Отвечает за точность(четкость) отрисовки
+        this.panX = 0.8;          // Смещение по Х
+        this.panY = 0.1;          // Смещение по Y
         this.scrolAngle = 0;
 
         this.oldX = this.oldY = 0;
@@ -19,12 +18,10 @@ class DrawPicture{
         window.addEventListener('mousedown', (e) => {
             this.isMouseDown = true;
             this.oldX = e.x;
-            this.oldY = e.y;           
-            //console.log("mouseDown!");
+            this.oldY = e.y;
         })
         window.addEventListener('mouseup', (e) => {
             this.isMouseDown = false;
-            //console.log("mouseUp!!!");
         })
         window.addEventListener('mousemove', (e) => {
             if(this.isMouseDown){
@@ -35,13 +32,11 @@ class DrawPicture{
             }
         })
         window.addEventListener('wheel', (e) => {
-            //console.log(`x:${e.x} y:${e.y}; delata:${e.wheelDelta}`)
             this.scrolAngle += e.wheelDelta;
             if(e.wheelDelta > 0)
                 this.scale += this.scale / 10;
             else
-                this.scale -= this.scrolAngle / 10;
-            //this.percision += this.scale * this.scrolAngle / 100000;
+                this.scale -= this.scale / 10;
             
             this.redrawCanvas();
         })
@@ -53,8 +48,7 @@ class DrawPicture{
     }
     createCanvas(){
         this.cnv = document.createElement(`canvas`);
-        //this.cnv = document.getElementsByTagName('canvas');
-        this.cnv.style.background = 'rgba(255,255,255,0)'//randColor('rgba');
+        this.cnv.style.background = 'rgba(255,255,255,0)';
         this.ctx = this.cnv.getContext('2d');
 
         document.body.appendChild(this.cnv);
@@ -64,6 +58,9 @@ class DrawPicture{
         this.h = this.cnv.height = innerHeight;
         this.canvasArray = createMatrix(this.w, this.h);
         this.imgData = this.ctx.createImageData(this.w, this.h);
+
+        this.dx = Math.floor(this.w * .5);
+        this.dy = Math.floor(this.h * .5);
     }
     drawNoise(){
         for(let w = 0; w < this.w; w++){
@@ -84,14 +81,12 @@ class DrawPicture{
         this.ctx.putImageData(rect, 0, 0);
     }
     
-    mandelbrot(){    
-        this.testSet = new Set();    
+    mandelbrot(){
         for(let x=0; x < this.cnv.width; x++) {
             for(let y=0; y < this.cnv.height; y++) {
                 let isBelongsToSet = 
-                        this.checkIfBelongsToMandelbrotSet(x/this.scale - this.panX, 
-                                                    y/this.scale - this.panY);
-                this.testSet.add(isBelongsToSet);
+                        this.checkIfBelongsToMandelbrotSet((x-this.dx)/this.scale - (this.panX), 
+                                                    (y-this.dy)/this.scale - (this.panY));
                 if(isBelongsToSet == 0) {
                     this.setPointInImgData(this.imgData, x, y, {r:0, g:0, b:0, a:255});
                 } else {
@@ -174,10 +169,6 @@ class DrawPicture{
     // Перерисовка полотна
     redrawCanvas(){
         this.mandelbrot();
-        this.testSet.forEach(element => {
-            console.log(element);
-        });
-        //this.drawCanvasArray();
         this.ctx.putImageData(this.imgData, 0, 0);
         this.updateControlData();
         this.ctx.strokeStyle = 'rgba(255,0,0,50)';
