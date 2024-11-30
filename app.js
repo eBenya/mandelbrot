@@ -1,6 +1,12 @@
+//import MandelbrotSet from "./MandelbrotSet";
+
 class DrawPicture{
+    constructor() {
+        this.mandelbrotSet = new MandelbrotSet();
+    }
+
     init(){
-        this.scale = new Number(250);       // Отвечает за масштабирование множества
+        this.scale = Number(250);       // Отвечает за масштабирование множества
         this.percision = 100;     // Отвечает за точность(четкость) отрисовки
         this.panX = 0.8;          // Смещение по Х
         this.panY = 0.1;          // Смещение по Y
@@ -37,7 +43,7 @@ class DrawPicture{
                 this.scale += this.scale / 10;
             else
                 this.scale -= this.scale / 10;
-            
+
             this.redrawCanvas();
         })
         let btn = document.getElementById("confChanges");
@@ -84,44 +90,12 @@ class DrawPicture{
     mandelbrot(){
         for(let x=0; x < this.cnv.width; x++) {
             for(let y=0; y < this.cnv.height; y++) {
-                let isBelongsToSet = 
-                        this.checkIfBelongsToMandelbrotSet((x-this.dx)/this.scale - (this.panX), 
-                                                    (y-this.dy)/this.scale - (this.panY));
-                if(isBelongsToSet == 0) {
-                    this.setPointInImgData(this.imgData, x, y, {r:0, g:0, b:0, a:255});
-                } else {
-                    this.setPointInImgData(this.imgData, x, y, {r:(isBelongsToSet * 17) % 256, g:(isBelongsToSet * 11) % 256, b:255, a:255});
-                }
+                let color = this.mandelbrotSet.calcMandelbrotPoint(x,y,this.dx,this.dy,this.scale, this.panX, this.panY, this.percision);
+                this.setPointInImgData(this.imgData, x, y, color);
             } 
         }
-    }    
-    checkIfBelongsToMandelbrotSet(x, y) {
-        let realComp = x;
-        let imgComp = y;
-        
-        let i = 0;
-        for(; i < this.percision; i++) {            
-            let tempRealComp = realComp * realComp
-                                    - imgComp * imgComp
-                                    + x;
-    
-            let tempImgComp = 2 * realComp * imgComp
-                                    + y;
-    
-            realComp = tempRealComp;
-            imgComp = tempImgComp;
-            if (realComp * imgComp > 5)
-            return i * 255 / this.percision; // In the Mandelbrot set
-        }       
-    
-        return 0; // Not in the set
     }
-    drawCanvasArray(){
-        for(let i = 0; i < this.canvasArray.length; i++)
-            for(let j = 0; j < this.canvasArray[i].length; j++){
-                printDot(this.ctx, i, j, this.canvasArray[i][j]);
-            }
-    }
+
     // Устанавливаем пиксель в позиции i, j 
     setPointInImgData(imgData, i, j, rgba){
         let iter = 4 * (i + imgData.width * j)
@@ -176,26 +150,6 @@ class DrawPicture{
     }
 }
 
-class App{
-    constructor(container) {
-        this.layer = new Layer(container);
-    }
-}
-class Layer {
-    constructor(container){
-        this.canvas = document.createElement(`canvas`);
-        this.context = this.canvas.getContext(`2d`);
-        
-        container.appendChild(this.canvas);
-
-        this.fitToContainer(this.canvas);
-        addEventListener(`resize`, () => this.fitToContainer(this.canvas));
-    }
-    fitToContainer(cnv){
-        cnv.width = cnv.offsetWidth;
-        cnv.height = cnv.offsetHeight
-    }
-}
 
 onload = () => {
     //new App(document.querySelector('body'));
@@ -203,10 +157,6 @@ onload = () => {
     picture.init();
 }
 
-function printDot(context, x, y, colorR = 0, colorG = 0, colorB = 0, colorA = 0){
-    context.fillStyle = `rgba(${colorR},${colorG},${colorB},${colorA})`;
-    context.fillRect(x, y, 1, 1);
-}
 function printDot(context, x, y, rgbaColor){
     context.fillStyle = rgbaColor;
     context.fillRect(x, y, 1, 1);
@@ -229,10 +179,10 @@ function randColor(format){
 }
 
 function createMatrix(i, j) {
-    let arr = new Array(i > 0 ? i : 0);
+    let arr = new Uint8ClampedArray(i > 0 ? i : 0);
     if(i > 0 && j > 0){
         for(let iter = 0; iter < i; iter++)
-            arr[iter] = new Array(j);
+            arr[iter] = new Uint8ClampedArray(j);
     }
 
     return arr;
@@ -275,59 +225,3 @@ function hslToRgb(h, s, l){
 
     return {r:Math.round(r * 255), g:Math.round(g * 255), b:Math.round(b * 255)};
 }
-
-
-
-
-
-
-
-/*function drawDesk(ctx, offsetX, offsetY){
-    ctx.fillStyle = 'black';
-    ctx.strokeRect(offsetX + 15, offsetY + 15, 266, 266);
-    ctx.strokeRect(offsetX + 18, offsetY + 18, 260, 260);
-    ctx.fillRect(offsetX + 20, offsetY + 20, 256, 256);
-    for (i = 0; i < 8; i += 2)
-        for (j = 0; j < 8; j += 2) {
-            let x1 = (20 + i * 32) + offsetX;
-            let y1 = (20 + j * 32) + offsetY;
-            let x2 = (20 + (i + 1) * 32) + offsetX;
-            let y2 = (20 + (j + 1) * 32) + offsetY ;
-
-            ctx.clearRect(x1, y1, 32, 32);
-            ctx.clearRect(x2, y2, 32, 32);
-        }
-}            
-function drawLines(ctx, offsetX, offsetY){
-    ctx.beginPath();
-    ctx.fillStyle = 'black';
-    ctx.arc(offsetX + 80, offsetY +  100, 56, 3/4 * Math.PI, 1/4 * Math.PI, true);
-    ctx.fill(); // *14
-    ctx.moveTo(offsetX + 40, offsetY + 140);
-    ctx.lineTo(offsetX + 20, offsetY + 40);
-    ctx.lineTo(offsetX + 60, offsetY + 100);
-    ctx.lineTo(offsetX + 80, offsetY + 20);
-    ctx.lineTo(offsetX + 100, offsetY + 100);
-    ctx.lineTo(offsetX + 140, offsetY + 40);
-    ctx.stroke(); // *22
-    ctx.closePath();		
-}
-function drawOR(ctx, offsetX, offsetY){
-    ctx.beginPath();
-    ctx.moveTo(offsetX + 0,  offsetY + 0);
-    ctx.lineTo(offsetX + 60, offsetY + 20);
-    ctx.lineTo(offsetX + 0,  offsetY + 40);
-    ctx.lineTo(offsetX + 0,  offsetY + 0);
-    //ctx.moveTo()
-    ctx.stroke();
-}*/
-
-/*var app = new Vue({
-    el: '#app',
-    data: {
-        arr: [1,2,3],
-        mess: 'kek',
-        elementName: '',
-        schem: {id: 0, keyName: 'box1', links:[]}
-    }
-});*/
